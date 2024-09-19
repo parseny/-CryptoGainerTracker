@@ -27,9 +27,17 @@ def main():
             crypto_data = fetch_crypto_data()
             logging.info(f"Fetched {len(crypto_data)} cryptocurrencies")
 
+            if not crypto_data:
+                st.error("Failed to fetch cryptocurrency data. Please try again later.")
+                return
+
             logging.info("Processing crypto data...")
             df = process_crypto_data(crypto_data)
             logging.info(f"Processed {len(df)} valid cryptocurrencies")
+
+            if df.empty:
+                st.warning("No valid cryptocurrencies found. Please check the data source and try again.")
+                return
 
         # Sidebar filters
         st.sidebar.header("Filters")
@@ -76,15 +84,19 @@ def main():
                 # Price chart for selected coin
                 st.header(f"Price Chart: {selected_gainer}")
                 logging.info(f"Creating price chart for {selected_gainer}")
-                chart = create_price_chart(selected_coin)
-                st.plotly_chart(chart)
+                try:
+                    chart = create_price_chart(selected_coin)
+                    st.plotly_chart(chart)
+                except Exception as e:
+                    logging.error(f"Error creating price chart: {str(e)}")
+                    st.error("Failed to create price chart. Please try again later.")
         else:
             st.warning("No top gainers available for recommendations.")
 
         logging.info("Application finished loading")
     except Exception as e:
         logging.error(f"An error occurred in main(): {str(e)}")
-        st.error(f"An error occurred: {str(e)}")
+        st.error(f"An unexpected error occurred. Please try again later.")
 
 if __name__ == "__main__":
     logging.info(f"COINMARKETCAP_API_KEY is {'set' if os.environ.get('COINMARKETCAP_API_KEY') else 'not set'}")

@@ -31,9 +31,31 @@ def fetch_crypto_data():
         return []
 
 def fetch_zapper_data(contract_address):
-    # Implement Zapper API call here if needed
-    pass
+    logging.info(f"Fetching Zapper data for contract: {contract_address}")
+    url = f"https://api.zapper.fi/v2/addresses/{contract_address}/balances"
+    headers = {
+        'Authorization': f"Basic {os.environ.get('ZAPPER_API_KEY', 'YOUR_API_KEY_HERE')}"
+    }
+    try:
+        logging.info(f"Sending request to Zapper API for {contract_address}")
+        response = requests.get(url, headers=headers)
+        logging.info(f"Zapper API response status code: {response.status_code}")
+        response.raise_for_status()
+        data = response.json()
+        logging.info(f"Successfully fetched Zapper data for {contract_address}")
+        return data
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Error fetching data from Zapper for {contract_address}: {str(e)}")
+        return None
 
 def is_valid_cryptocurrency(coin):
-    # Implement cryptocurrency validation logic here if needed
-    return True
+    logging.info(f"Validating cryptocurrency: {coin.get('name', 'Unknown')}")
+    if 'platform' in coin and coin['platform'] and 'token_address' in coin['platform']:
+        contract_address = coin['platform']['token_address']
+        zapper_data = fetch_zapper_data(contract_address)
+        if zapper_data and 'tokens' in zapper_data:
+            is_valid = any(token['address'].lower() == contract_address.lower() for token in zapper_data['tokens'])
+            logging.info(f"Cryptocurrency {coin.get('name', 'Unknown')} validation result: {is_valid}")
+            return is_valid
+    logging.info(f"Cryptocurrency {coin.get('name', 'Unknown')} assumed valid (no contract address or Zapper data)")
+    return True  # If we can't verify, assume it's valid
