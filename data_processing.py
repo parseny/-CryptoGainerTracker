@@ -10,7 +10,7 @@ def process_crypto_data(crypto_data):
     # Categorize coins
     df['type'] = 'Other'
     df.loc[df['market_cap'] > 1e9, 'type'] = 'Major'
-    df.loc[df['platform'].notna() & (df['platform'].apply(lambda x: x['symbol'] == 'SOL')), 'type'] = 'Solana Meme'
+    df.loc[df['platform'].notna() & (df['platform'].apply(lambda x: x is not None and x.get('symbol') == 'SOL')), 'type'] = 'Solana Meme'
 
     return df[['id', 'name', 'symbol', 'price', 'market_cap', '24h_change', 'type']]
 
