@@ -3,7 +3,8 @@ import pandas as pd
 import plotly.express as px
 import logging
 import os
-from api_helpers import fetch_crypto_data, fetch_zapper_data
+from pathlib import Path
+from api_helpers import fetch_crypto_data, fetch_zapper_data, fetch_crypto_news, fetch_fear_greed_index
 from data_processing import process_crypto_data, filter_crypto_data, get_top_gainers
 from visualization import create_price_chart
 from similarity_algorithm import find_similar_coins
@@ -13,6 +14,11 @@ from constants import COIN_TYPES
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 st.set_page_config(page_title="Crypto Tracker", layout="wide")
+
+# Load custom CSS
+css_file = Path(__file__).parent / "style.css"
+with open(css_file) as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Main application
 def main():
@@ -43,23 +49,43 @@ def main():
         filtered_df = filter_crypto_data(df, selected_types, min_price, max_price, min_market_cap)
         logging.info(f"Filtered to {len(filtered_df)} cryptocurrencies")
 
-        # Display filtered cryptocurrency list
-        st.header("Cryptocurrency List")
-        if not filtered_df.empty:
-            st.dataframe(filtered_df[['name', 'symbol', 'price', 'market_cap', '24h_change', 'type']])
-        else:
-            st.warning("No cryptocurrencies match the current filters.")
+        col1, col2 = st.columns([2, 1])
 
-        logging.info("Calculating top gainers...")
-        # Top gainers section
-        st.header("Top Gainers (24h)")
-        top_gainers = get_top_gainers(df)
-        if not top_gainers.empty:
-            st.dataframe(top_gainers[['name', 'symbol', 'price', 'market_cap', '24h_change']])
-        else:
-            st.warning("No top gainers found.")
+        with col1:
+            st.header("Cryptocurrency List")
+            if not filtered_df.empty:
+                st.dataframe(filtered_df[['name', 'symbol', 'price', 'market_cap', '24h_change', 'type']])
+            else:
+                st.warning("No cryptocurrencies match the current filters.")
 
-        # Similar coin recommendations
+            logging.info("Calculating top gainers...")
+            st.header("Top Gainers (24h)")
+            top_gainers = get_top_gainers(df)
+            if not top_gainers.empty:
+                st.dataframe(top_gainers[['name', 'symbol', 'price', 'market_cap', '24h_change']])
+            else:
+                st.warning("No top gainers found.")
+
+        with col2:
+            st.header("Fear & Greed Index")
+            fng_data = fetch_fear_greed_index()
+            if fng_data:
+                st.metric("Fear & Greed Index", fng_data['value'], fng_data['value_classification'])
+            else:
+                st.warning("Unable to fetch Fear & Greed Index at the moment.")
+
+            st.header("Latest Crypto News")
+            news_items = fetch_crypto_news()
+            if news_items:
+                for item in news_items:
+                    st.subheader(item['title'])
+                    st.write(f"Source: {item['source']}")
+                    st.write(item['body'][:200] + "...")  # Display first 200 characters of the news body
+                    st.write(f"[Read more]({item['url']})")
+                    st.write("---")
+            else:
+                st.warning("Unable to fetch crypto news at the moment.")
+
         st.header("Similar Coin Recommendations")
         if not top_gainers.empty:
             selected_gainer = st.selectbox("Select a top gainer for recommendations", top_gainers['name'])

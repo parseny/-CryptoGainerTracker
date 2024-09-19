@@ -1,0 +1,29 @@
+.stApp {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.stHeader {
+    background-color: #1E1E1E;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.stMetric {
+    background-color: #2E2E2E;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.stDataFrame {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.stPlotlyChart {
+    background-color: #2E2E2E;
+    border-radius: 10px;
+    padding: 1rem;
+}
