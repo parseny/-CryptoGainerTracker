@@ -1,8 +1,11 @@
 import requests
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def fetch_crypto_data():
-    # Replace with actual CoinMarketCap API endpoint and parameters
+    logging.info("Starting fetch_crypto_data function")
     url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
     parameters = {
         'start': '1',
@@ -14,32 +17,46 @@ def fetch_crypto_data():
         'X-CMC_PRO_API_KEY': os.environ.get('COINMARKETCAP_API_KEY', 'YOUR_API_KEY_HERE'),
     }
 
-    response = requests.get(url, headers=headers, params=parameters)
-    data = response.json()
-    return data['data']
+    logging.info(f"COINMARKETCAP_API_KEY is {'set' if os.environ.get('COINMARKETCAP_API_KEY') else 'not set'}")
+    logging.info("Sending request to CoinMarketCap API")
+    try:
+        response = requests.get(url, headers=headers, params=parameters)
+        logging.info(f"Response status code: {response.status_code}")
+        response.raise_for_status()
+        data = response.json()
+        logging.info(f"Successfully fetched data for {len(data['data'])} cryptocurrencies")
+        return data['data']
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Error fetching data: {str(e)}")
+        return []
 
 def fetch_zapper_data(contract_address):
-    # Replace with actual Zapper API endpoint and parameters
+    logging.info(f"Starting fetch_zapper_data function for {contract_address}")
     url = f"https://api.zapper.fi/v1/protocols/ethereum/tokens/{contract_address}/stats"
     parameters = {
         'api_key': os.environ.get('ZAPPER_API_KEY', 'YOUR_API_KEY_HERE'),
     }
 
+    logging.info(f"ZAPPER_API_KEY is {'set' if os.environ.get('ZAPPER_API_KEY') else 'not set'}")
     try:
         response = requests.get(url, params=parameters)
-        response.raise_for_status()  # Raises an HTTPError for bad responses
+        logging.info(f"Zapper API response status code: {response.status_code}")
+        response.raise_for_status()
         data = response.json()
-        # Check if the response contains typical cryptocurrency data
         if 'price' in data and 'market_cap' in data:
-            return True  # It's likely a valid cryptocurrency
+            logging.info(f"Valid cryptocurrency data found for {contract_address}")
+            return True
         else:
-            return False  # It's likely an account or not a valid cryptocurrency
-    except requests.exceptions.RequestException:
-        return False  # If there's any error, assume it's not a valid cryptocurrency
+            logging.info(f"Invalid cryptocurrency data for {contract_address}")
+            return False
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Error fetching Zapper data: {str(e)}")
+        return False
 
 def is_valid_cryptocurrency(coin):
-    # Check if the coin has a contract address
+    logging.info(f"Checking validity of {coin.get('name', 'Unknown')}")
     if 'platform' in coin and coin['platform'] and 'token_address' in coin['platform']:
         contract_address = coin['platform']['token_address']
         return fetch_zapper_data(contract_address)
-    return True  # If there's no contract address, assume it's a valid cryptocurrency
+    logging.info(f"{coin.get('name', 'Unknown')} has no contract address, assuming valid")
+    return True
