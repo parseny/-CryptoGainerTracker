@@ -1,8 +1,12 @@
 import pandas as pd
 from constants import COIN_TYPES
+from api_helpers import is_valid_cryptocurrency
 
 def process_crypto_data(crypto_data):
-    df = pd.DataFrame(crypto_data)
+    # Filter out invalid cryptocurrencies
+    valid_crypto_data = [coin for coin in crypto_data if is_valid_cryptocurrency(coin)]
+    
+    df = pd.DataFrame(valid_crypto_data)
     df['price'] = df['quote'].apply(lambda x: x['USD']['price'])
     df['market_cap'] = df['quote'].apply(lambda x: x['USD']['market_cap'])
     df['24h_change'] = df['quote'].apply(lambda x: x['USD']['percent_change_24h'])
