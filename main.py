@@ -24,7 +24,7 @@ def main():
         with st.spinner("Loading cryptocurrency data..."):
             logging.info("Starting data fetch...")
             # Fetch and process data
-            crypto_data = fetch_crypto_data()
+            crypto_data = fetch_crypto_data(timeout=30)
             logging.info(f"Fetched {len(crypto_data)} cryptocurrencies")
 
             if not crypto_data:
@@ -96,7 +96,7 @@ def main():
         logging.info("Application finished loading")
     except Exception as e:
         logging.error(f"An error occurred in main(): {str(e)}")
-        st.error(f"An unexpected error occurred. Please try again later.")
+        st.error("An unexpected error occurred. Please try again later.")
 
 if __name__ == "__main__":
     logging.info(f"COINMARKETCAP_API_KEY is {'set' if os.environ.get('COINMARKETCAP_API_KEY') else 'not set'}")

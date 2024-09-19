@@ -4,7 +4,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def fetch_crypto_data():
+def fetch_crypto_data(timeout=30):
     logging.info("Starting fetch_crypto_data function")
     url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
     parameters = {
@@ -20,7 +20,7 @@ def fetch_crypto_data():
     logging.info(f"COINMARKETCAP_API_KEY is {'set' if os.environ.get('COINMARKETCAP_API_KEY') else 'not set'}")
     logging.info("Sending request to CoinMarketCap API")
     try:
-        response = requests.get(url, headers=headers, params=parameters)
+        response = requests.get(url, headers=headers, params=parameters, timeout=timeout)
         logging.info(f"Response status code: {response.status_code}")
         response.raise_for_status()
         data = response.json()
