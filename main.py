@@ -41,7 +41,7 @@ def main():
     selected_gainer = st.selectbox("Select a top gainer for recommendations", top_gainers['name'])
     if selected_gainer:
         selected_coin = df[df['name'] == selected_gainer].iloc[0]
-        similar_coins = find_similar_coins(selected_coin)
+        similar_coins = find_similar_coins(selected_coin, df)
         st.dataframe(similar_coins[['name', 'symbol', 'price', 'market_cap', '24h_change']])
 
     # Price chart for selected coin
