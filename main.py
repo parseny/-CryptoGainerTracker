@@ -41,8 +41,13 @@ def main():
     selected_gainer = st.selectbox("Select a top gainer for recommendations", top_gainers['name'])
     if selected_gainer:
         selected_coin = df[df['name'] == selected_gainer].iloc[0]
+        print(f"Selected coin: {selected_coin}")  # Debug print
         similar_coins = find_similar_coins(selected_coin, df)
-        st.dataframe(similar_coins[['name', 'symbol', 'price', 'market_cap', '24h_change']])
+        print(f"Similar coins: {similar_coins}")  # Debug print
+        if not similar_coins.empty:
+            st.dataframe(similar_coins[['name', 'symbol', 'price', 'market_cap', '24h_change']])
+        else:
+            st.write("No similar coins found.")
 
     # Price chart for selected coin
     if selected_gainer:
