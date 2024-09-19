@@ -1,5 +1,3 @@
-print("Script execution started")  # Debug print at the very top
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -22,14 +20,16 @@ def main():
     try:
         st.title("Cryptocurrency Tracking Application")
 
-        logging.info("Starting data fetch...")
-        # Fetch and process data
-        crypto_data = fetch_crypto_data()
-        logging.info(f"Fetched {len(crypto_data)} cryptocurrencies")
+        # Add a loading indicator
+        with st.spinner("Loading cryptocurrency data..."):
+            logging.info("Starting data fetch...")
+            # Fetch and process data
+            crypto_data = fetch_crypto_data()
+            logging.info(f"Fetched {len(crypto_data)} cryptocurrencies")
 
-        logging.info("Processing crypto data...")
-        df = process_crypto_data(crypto_data)
-        logging.info(f"Processed {len(df)} valid cryptocurrencies")
+            logging.info("Processing crypto data...")
+            df = process_crypto_data(crypto_data)
+            logging.info(f"Processed {len(df)} valid cryptocurrencies")
 
         # Sidebar filters
         st.sidebar.header("Filters")
@@ -45,33 +45,41 @@ def main():
 
         # Display filtered cryptocurrency list
         st.header("Cryptocurrency List")
-        st.dataframe(filtered_df[['name', 'symbol', 'price', 'market_cap', '24h_change', 'type']])
+        if not filtered_df.empty:
+            st.dataframe(filtered_df[['name', 'symbol', 'price', 'market_cap', '24h_change', 'type']])
+        else:
+            st.warning("No cryptocurrencies match the current filters.")
 
         logging.info("Calculating top gainers...")
         # Top gainers section
         st.header("Top Gainers (24h)")
         top_gainers = get_top_gainers(df)
-        st.dataframe(top_gainers[['name', 'symbol', 'price', 'market_cap', '24h_change']])
+        if not top_gainers.empty:
+            st.dataframe(top_gainers[['name', 'symbol', 'price', 'market_cap', '24h_change']])
+        else:
+            st.warning("No top gainers found.")
 
         # Similar coin recommendations
         st.header("Similar Coin Recommendations")
-        selected_gainer = st.selectbox("Select a top gainer for recommendations", top_gainers['name'])
-        if selected_gainer:
-            selected_coin = df[df['name'] == selected_gainer].iloc[0]
-            logging.info(f"Selected coin: {selected_coin['name']}")
-            similar_coins = find_similar_coins(selected_coin, df)
-            logging.info(f"Found {len(similar_coins)} similar coins")
-            if not similar_coins.empty:
-                st.dataframe(similar_coins[['name', 'symbol', 'price', 'market_cap', '24h_change']])
-            else:
-                st.write("No similar coins found.")
+        if not top_gainers.empty:
+            selected_gainer = st.selectbox("Select a top gainer for recommendations", top_gainers['name'])
+            if selected_gainer:
+                selected_coin = df[df['name'] == selected_gainer].iloc[0]
+                logging.info(f"Selected coin: {selected_coin['name']}")
+                similar_coins = find_similar_coins(selected_coin, df)
+                logging.info(f"Found {len(similar_coins)} similar coins")
+                if not similar_coins.empty:
+                    st.dataframe(similar_coins[['name', 'symbol', 'price', 'market_cap', '24h_change']])
+                else:
+                    st.write("No similar coins found.")
 
-        # Price chart for selected coin
-        if selected_gainer:
-            st.header(f"Price Chart: {selected_gainer}")
-            logging.info(f"Creating price chart for {selected_gainer}")
-            chart = create_price_chart(selected_coin)
-            st.plotly_chart(chart)
+                # Price chart for selected coin
+                st.header(f"Price Chart: {selected_gainer}")
+                logging.info(f"Creating price chart for {selected_gainer}")
+                chart = create_price_chart(selected_coin)
+                st.plotly_chart(chart)
+        else:
+            st.warning("No top gainers available for recommendations.")
 
         logging.info("Application finished loading")
     except Exception as e:
@@ -80,4 +88,5 @@ def main():
 
 if __name__ == "__main__":
     logging.info(f"COINMARKETCAP_API_KEY is {'set' if os.environ.get('COINMARKETCAP_API_KEY') else 'not set'}")
+    logging.info(f"ZAPPER_API_KEY is {'set' if os.environ.get('ZAPPER_API_KEY') else 'not set'}")
     main()
