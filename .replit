@@ -28,7 +28,7 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "streamlit run main.py --server.port 5000"
+args = "streamlit run main.py --server.port 5000 --server.headless true"
 waitForPort = 5000
 
 [[workflows.workflow]]
@@ -43,7 +43,7 @@ task = "shell.exec"
 args = "git add ."
 
 [deployment]
-run = ["sh", "-c", "streamlit run main.py --server.port 5000"]
+run = ["sh", "-c", "streamlit run main.py --server.port 5000 --server.headless true"]
 
 [[ports]]
 localPort = 5000

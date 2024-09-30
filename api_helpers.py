@@ -58,4 +58,27 @@ def is_valid_cryptocurrency(coin):
             logging.info(f"Cryptocurrency {coin.get('name', 'Unknown')} validation result: {is_valid}")
             return is_valid
     logging.info(f"Cryptocurrency {coin.get('name', 'Unknown')} assumed valid (no contract address or Zapper data)")
-    return True  # If we can't verify, assume it's valid
+    return True
+
+def fetch_crypto_news():
+    url = "https://min-api.cryptocompare.com/data/v2/news/?lang=EN"
+    response = requests.get(url)
+    if response.status_code == 200:
+        news_data = response.json()['Data']
+        return news_data[:5]  # Return the 5 most recent news items
+    else:
+        logging.error(f"Error fetching news: {response.status_code}")
+        return []
+
+def fetch_fear_greed_index():
+    url = "https://api.alternative.me/fng/?limit=1"
+    response = requests.get(url)
+    if response.status_code == 200:
+        fng_data = response.json()['data'][0]
+        return {
+            'value': fng_data['value'],
+            'value_classification': fng_data['value_classification']
+        }
+    else:
+        logging.error(f"Error fetching Fear & Greed index: {response.status_code}")
+        return None
