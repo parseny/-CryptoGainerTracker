@@ -1,29 +1,71 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f2f6;
+    color: #333;
+}
+
 .stApp {
     max-width: 1200px;
     margin: 0 auto;
 }
 
-.stHeader {
-    background-color: #1E1E1E;
-    padding: 1rem;
-    border-radius: 10px;
-    margin-bottom: 1rem;
+.section-header {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
 }
 
-.stMetric {
-    background-color: #2E2E2E;
-    padding: 1rem;
-    border-radius: 10px;
-    margin-bottom: 1rem;
+.crypto-table {
+    font-size: 12px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.stDataFrame {
-    border-radius: 10px;
-    overflow: hidden;
+.crypto-table th {
+    background-color: #f1f5f9;
+    color: #1e3a8a;
+    font-weight: bold;
+    text-align: left;
+    padding: 8px;
 }
 
-.stPlotlyChart {
-    background-color: #2E2E2E;
-    border-radius: 10px;
-    padding: 1rem;
+.crypto-table td {
+    padding: 8px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.crypto-table tr:hover {
+    background-color: #f8fafc;
+}
+
+.metric-card {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.news-item {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.news-item h3 {
+    color: #1e3a8a;
+    margin-top: 0;
+}
+
+.chart-container {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-top: 15px;
 }
